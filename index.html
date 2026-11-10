@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PPG Monitoring System</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    padding: 25px;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+}
+
+h1 { color: #1e293b; }
+
+.card {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 12px;
+}
+
+input {
+    padding: 11px;
+    width: 90%;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    padding: 11px 16px;
+    margin: 5px 3px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #2563eb;
+    color: white;
+}
+
+button:hover { opacity: 0.85; }
+
+.data {
+    display: flex;
+    gap: 15px;
+}
+
+.value {
+    flex: 1;
+    background: #eff6ff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.value h2 { color: #2563eb; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+small { color: #64748b; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>PPG Monitoring System</h1>
+<p>ESP32 - MAX30102 Data Acquisition</p>
+
+<div class="card">
+    <h3>Identitas Responden</h3>
+    <input id="nama" placeholder="Masukkan ID responden">
+
+    <br>
+
+    <button onclick="connectBluetooth()">
+        Connect Bluetooth
+    </button>
+
+    <p id="status">Status: Belum terhubung</p>
+</div>
+
+<div class="card">
+    <h3>Hasil Pengukuran</h3>
+
+    <div class="data">
+        <div class="value">
+            <small>Heart Rate</small>
+            <h2 id="hr">-- BPM</h2>
+        </div>
+
+        <div class="value">
+            <small>Suhu Tubuh
+            </small>
+<h2 id="temperature">-- °C</h2>
+        </div>
+    </div>
+
+    <p><small>Jumlah sampel: <span id="count">0</span></small></p>
+
+    <button onclick="saveData()">Save Data</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+</div>
+
+<div class="card">
+    <h3>Riwayat Pengukuran</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>HR (BPM)</th>
+                <th>Jumlah Sampel</th>
+            </tr>
+        </thead>
+        <tbody id="history"></tbody>
+    </table>
+</div>
+
+</div>
+
+<script>
+const SERVICE_UUID =
+    "12345678-1234-1234-1234-1234567890ab";
+
+const CHARACTERISTIC_UUID =
+    "abcdefab-1234-1234-1234-abcdefabcdef";
+
+let characteristic;
+let samples = [];
+let savedSessions = [];
+let buffer = "";
+
+async function connectBluetooth() {
+    try {
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [SERVICE_UUID] }]
+        });
+
+        const server = await device.gatt.connect();
+
+        const service =
+            await server.getPrimaryService(SERVICE_UUID);
+
+        characteristic =
+            await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+        await characteristic.startNotifications();
+
+        characteristic.addEventListener(
+            "characteristicvaluechanged",
+            receiveData
+        );
+
+        document.getElementById("status").textContent =
+            "Status: Terhubung ke " + device.name;
+
+    } catch (error) {
+        document.getElementById("status").textContent =
+            "Gagal terhubung: " + error.message;
+    }
+}
+
+function receiveData(event) {
+    const value = event.target.value;
+    const bytes = new Uint8Array(
+        value.buffer, value.byteOffset, value.byteLength
+    );
+
+    buffer += new TextDecoder().decode(bytes);
+
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+        const parts = line.trim().split(",");
+
+        if (parts.length !== 3) continue;
+
+        const [time, ir, bpm] = parts.map(Number);
+
+        if (![time, ir, bpm].every(Number.isFinite)) continue;
+
+        samples.push({
+            time: time,
+            ir: ir,
+            bpm: bpm
+        });
+
+        document.getElementById("hr").textContent =
+            bpm + " BPM";
+
+        document.getElementById("ir").textContent = ir;
+
+        document.getElementById("count").textContent =
+            samples.length;
+    }
+}
+
+function saveData() {
+    const nama = document.getElementById("nama").value.trim();
+
+    if (!nama || samples.length === 0) {
+        alert("Isi ID responden dan terima data sensor dahulu.");
+        return;
+    }
+
+    const session = {
+        nama: nama,
+        samples: samples.map(s => ({...s}))
+    };
+
+    savedSessions.push(session);
+
+    const last = samples[samples.length - 1];
+
+    const row = document.createElement("tr");
+
+    [nama, last.bpm, samples.length].forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+    });
+
+    document.getElementById("history").appendChild(row);
+
+    alert("Sesi pengukuran berhasil disimpan.");
+
+    samples = [];
+    document.getElementById("count").textContent = 0;
+}
+
+function downloadCSV() {
+    if (savedSessions.length === 0) {
+        alert("Belum ada data yang disimpan.");
+        return;
+    }
+
+    let csv = "ID,Waktu_ms,PPG_IR,HR_BPM\n";
+
+    savedSessions.forEach(session => {
+        session.samples.forEach(s => {
+            csv += `${session.nama},${s.time},${s.ir},${s.bpm}\n`;
+        });
+    });
+
+    const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "data_PPG.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
