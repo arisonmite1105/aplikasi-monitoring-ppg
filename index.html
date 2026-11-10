@@ -3,152 +3,369 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PPG Monitoring System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cute Health Monitor</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f1f5f9;
     margin: 0;
-    padding: 25px;
+    min-height: 100vh;
+    padding: 35px 15px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #fce4ec, #f4e9fa, #fff1e6);
+    color: #62546b;
 }
 
 .container {
+    width: 100%;
     max-width: 850px;
     margin: auto;
+    background: rgba(255,255,255,0.88);
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 12px 35px rgba(128, 90, 130, 0.12);
 }
 
-h1 { color: #1e293b; }
-
-.card {
-    background: white;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 12px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
 }
 
-input {
-    padding: 11px;
-    width: 90%;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+h1 {
+    color: #c77d9b;
+    font-size: 27px;
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 button {
-    padding: 11px 16px;
-    margin: 5px 3px;
     border: none;
-    border-radius: 6px;
+    padding: 12px 17px;
+    border-radius: 14px;
     cursor: pointer;
-    background: #2563eb;
-    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
 }
 
-button:hover { opacity: 0.85; }
-
-.data {
-    display: flex;
-    gap: 15px;
+button:hover {
+    transform: translateY(-2px);
+    opacity: 0.85;
 }
 
-.value {
-    flex: 1;
-    background: #eff6ff;
+.connect {
+    background: #e8e5fa;
+    color: #746b9a;
+}
+
+.simulate {
+    background: #ffe8d5;
+    color: #aa7955;
+}
+
+.save {
+    background: #dff2e5;
+    color: #59886a;
+}
+
+.download {
+    background: #f5dce8;
+    color: #a85f81;
+}
+
+.status {
+    margin: 18px 0;
+    padding: 12px;
+    background: #faf5fa;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.status-dot {
+    color: #d58cab;
+    font-weight: bold;
+}
+
+.input-group {
+    margin: 18px 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 9px;
+    font-weight: 600;
+    color: #8b7895;
+}
+
+input {
+    width: 100%;
     padding: 15px;
-    border-radius: 8px;
+    border: 1.5px solid #e6dce9;
+    border-radius: 14px;
+    outline: none;
+    background: #fff;
+    color: #62546b;
+    font-size: 14px;
 }
 
-.value h2 { color: #2563eb; }
+input:focus {
+    border-color: #d89bb7;
+}
+
+.measurements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.measurement {
+    padding: 20px;
+    border-radius: 17px;
+    background: #fff3f7;
+    position: relative;
+}
+
+.measurement.temperature {
+    background: #fff3e8;
+}
+
+.measurement h3 {
+    font-size: 14px;
+    margin: 0 0 12px;
+    color: #987c94;
+}
+
+.measurement .number {
+    font-size: 30px;
+    font-weight: bold;
+    color: #c8799b;
+}
+
+.temperature .number {
+    color: #d49a65;
+}
+
+.unit {
+    font-size: 13px;
+    color: #a18fa4;
+}
+
+.save-area {
+    display: flex;
+    justify-content: flex-end;
+    margin: 15px 0 25px;
+}
+
+.history {
+    margin-top: 25px;
+}
+
+.history h2 {
+    font-size: 18px;
+    color: #b87998;
+    margin-bottom: 15px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
 
 table {
     width: 100%;
     border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    min-width: 400px;
     text-align: center;
 }
 
-small { color: #64748b; }
+thead {
+    background: #f8e2d3;
+    color: #9e705b;
+}
+
+th, td {
+    padding: 14px 10px;
+    border-bottom: 1px solid #f0e5ec;
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background: #fff8fb;
+}
+
+.download-area {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 11px;
+    color: #b4a4b6;
+}
+
+@media (max-width: 550px) {
+    .container {
+        padding: 20px;
+    }
+
+    .header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .measurements {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<h1>PPG Monitoring System</h1>
-<p>ESP32 - MAX30102 Data Acquisition</p>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>🎀 Health Tracker</h1>
 
-<div class="card">
-    <h3>Identitas Responden</h3>
-    <input id="nama" placeholder="Masukkan ID responden">
+        <div class="header-buttons">
+            <button class="connect" onclick="connectBluetooth()">
+                ♟ Connect BLE
+            </button>
 
-    <br>
-
-    <button onclick="connectBluetooth()">
-        Connect Bluetooth
-    </button>
-
-    <p id="status">Status: Belum terhubung</p>
-</div>
-
-<div class="card">
-    <h3>Hasil Pengukuran</h3>
-
-    <div class="data">
-        <div class="value">
-            <small>Heart Rate</small>
-            <h2 id="hr">-- BPM</h2>
-        </div>
-
-        <div class="value">
-            <small>Suhu Tubuh
-            </small>
-<h2 id="temperature">-- °C</h2>
+            <button class="simulate" onclick="toggleSimulation()">
+                🧸 Mode Simulasi
+            </button>
         </div>
     </div>
 
-    <p><small>Jumlah sampel: <span id="count">0</span></small></p>
+    <!-- STATUS -->
+    <div class="status">
+        <span class="status-dot">●</span>
+        <span id="status">Status: Terputus</span>
+    </div>
 
-    <button onclick="saveData()">Save Data</button>
-    <button onclick="downloadCSV()">Download CSV</button>
-</div>
+    <!-- RESPONDEN -->
+    <div class="input-group">
+        <label>👤 Nama Responden:</label>
+        <input type="text" id="nama"
+        placeholder="Masukkan nama atau kode responden...">
+    </div>
 
-<div class="card">
-    <h3>Riwayat Pengukuran</h3>
+    <!-- HEART RATE -->
+    <div class="measurements">
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>HR (BPM)</th>
-                <th>Jumlah Sampel</th>
-            </tr>
-        </thead>
-        <tbody id="history"></tbody>
-    </table>
-</div>
+        <div class="measurement">
+            <h3>💗 Heart Rate</h3>
+            <span class="number" id="hr">--</span>
+            <span class="unit">BPM</span>
+        </div>
+
+        <div class="measurement temperature">
+            <h3>🌡️ Suhu Tubuh</h3>
+            <span class="number" id="temp">--</span>
+            <span class="unit">°C</span>
+        </div>
+
+    </div>
+
+    <!-- SAVE -->
+    <div class="save-area">
+        <button class="save" onclick="saveData()">
+            💾 Save
+        </button>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="history">
+        <h2>📋 Riwayat Pengukuran</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>H.R (bpm)</th>
+                        <th>Temperature (°C)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DOWNLOAD -->
+    <div class="download-area">
+        <button class="download" onclick="downloadCSV()">
+            📊 Download Data (CSV)
+        </button>
+    </div>
+
+    <div class="footer">
+        Cute Health Monitor | ESP32 & MAX30102
+    </div>
 
 </div>
 
 <script>
+
+// =====================================
+// BLUETOOTH CONFIGURATION
+// =====================================
+
+// UUID contoh. Harus disamakan dengan
+// UUID BLE pada program ESP32.
+
 const SERVICE_UUID =
-    "12345678-1234-1234-1234-1234567890ab";
+"12345678-1234-1234-1234-1234567890ab";
 
 const CHARACTERISTIC_UUID =
-    "abcdefab-1234-1234-1234-abcdefabcdef";
+"abcdefab-1234-1234-1234-abcdefabcdef";
 
-let characteristic;
-let samples = [];
-let savedSessions = [];
+let characteristic = null;
 let buffer = "";
 
+let currentHR = null;
+let currentTemp = null;
+
+let savedData = [];
+let simulationTimer = null;
+
+// =====================================
+// BLUETOOTH CONNECTION
+// =====================================
+
 async function connectBluetooth() {
+
     try {
+
+        if (!navigator.bluetooth) {
+            alert("Browser belum mendukung Web Bluetooth.");
+            return;
+        }
+
         const device = await navigator.bluetooth.requestDevice({
             filters: [{ services: [SERVICE_UUID] }]
         });
@@ -156,10 +373,10 @@ async function connectBluetooth() {
         const server = await device.gatt.connect();
 
         const service =
-            await server.getPrimaryService(SERVICE_UUID);
+        await server.getPrimaryService(SERVICE_UUID);
 
         characteristic =
-            await service.getCharacteristic(CHARACTERISTIC_UUID);
+        await service.getCharacteristic(CHARACTERISTIC_UUID);
 
         await characteristic.startNotifications();
 
@@ -169,18 +386,35 @@ async function connectBluetooth() {
         );
 
         document.getElementById("status").textContent =
-            "Status: Terhubung ke " + device.name;
+        "Status: Terhubung ke " + (device.name || "ESP32");
 
-    } catch (error) {
+        device.addEventListener("gattserverdisconnected", () => {
+            document.getElementById("status").textContent =
+            "Status: Terputus";
+        });
+
+    } catch(error) {
+
         document.getElementById("status").textContent =
-            "Gagal terhubung: " + error.message;
+        "Status: Gagal terhubung";
+
+        alert("Koneksi gagal: " + error.message);
     }
 }
 
+// =====================================
+// RECEIVE DATA FROM ESP32
+// Format: waktu,suhu,HR
+// =====================================
+
 function receiveData(event) {
+
     const value = event.target.value;
+
     const bytes = new Uint8Array(
-        value.buffer, value.byteOffset, value.byteLength
+        value.buffer,
+        value.byteOffset,
+        value.byteLength
     );
 
     buffer += new TextDecoder().decode(bytes);
@@ -188,91 +422,156 @@ function receiveData(event) {
     const lines = buffer.split("\n");
     buffer = lines.pop();
 
-    for (const line of lines) {
+    lines.forEach(line => {
+
         const parts = line.trim().split(",");
 
-        if (parts.length !== 3) continue;
+        if(parts.length !== 3) return;
 
-        const [time, ir, bpm] = parts.map(Number);
+        const [time, temp, hr] = parts.map(Number);
 
-        if (![time, ir, bpm].every(Number.isFinite)) continue;
+        if(![time, temp, hr].every(Number.isFinite)) return;
 
-        samples.push({
-            time: time,
-            ir: ir,
-            bpm: bpm
-        });
+        if(temp <= 0 || hr <= 0) return;
 
-        document.getElementById("hr").textContent =
-            bpm + " BPM";
-
-        document.getElementById("ir").textContent = ir;
-
-        document.getElementById("count").textContent =
-            samples.length;
-    }
+        updateDisplay(hr, temp);
+    });
 }
 
-function saveData() {
-    const nama = document.getElementById("nama").value.trim();
+// =====================================
+// UPDATE DISPLAY
+// =====================================
 
-    if (!nama || samples.length === 0) {
-        alert("Isi ID responden dan terima data sensor dahulu.");
+function updateDisplay(hr, temp) {
+
+    currentHR = hr;
+    currentTemp = temp;
+
+    document.getElementById("hr").textContent = hr;
+
+    document.getElementById("temp").textContent =
+    Number(temp).toFixed(1);
+}
+
+// =====================================
+// SIMULATION MODE
+// Data ini hanya data DEMO
+// =====================================
+
+function toggleSimulation() {
+
+    if(simulationTimer) {
+
+        clearInterval(simulationTimer);
+        simulationTimer = null;
+
+        document.getElementById("status").textContent =
+        "Status: Simulasi dihentikan";
+
         return;
     }
 
-    const session = {
+    document.getElementById("status").textContent =
+    "Status: Mode Simulasi (Data Demo)";
+
+    simulationTimer = setInterval(() => {
+
+        const hr = Math.floor(70 + Math.random() * 16);
+
+        const temp =
+        (36 + Math.random() * 1.5).toFixed(1);
+
+        updateDisplay(hr, temp);
+
+    }, 2000);
+}
+
+// =====================================
+// SAVE MEASUREMENT
+// =====================================
+
+function saveData() {
+
+    const nama =
+    document.getElementById("nama").value.trim();
+
+    if(!nama) {
+        alert("Masukkan nama atau kode responden!");
+        return;
+    }
+
+    if(currentHR === null || currentTemp === null) {
+        alert("Belum ada data pengukuran!");
+        return;
+    }
+
+    const record = {
         nama: nama,
-        samples: samples.map(s => ({...s}))
+        hr: currentHR,
+        temp: currentTemp,
+        date: new Date().toLocaleString("id-ID")
     };
 
-    savedSessions.push(session);
-
-    const last = samples[samples.length - 1];
+    savedData.push(record);
 
     const row = document.createElement("tr");
 
-    [nama, last.bpm, samples.length].forEach(value => {
+    [record.nama, record.hr, record.temp.toFixed(1)]
+    .forEach(value => {
+
         const cell = document.createElement("td");
         cell.textContent = value;
         row.appendChild(cell);
+
     });
 
     document.getElementById("history").appendChild(row);
 
-    alert("Sesi pengukuran berhasil disimpan.");
+    alert("Data berhasil disimpan!");
 
-    samples = [];
-    document.getElementById("count").textContent = 0;
 }
 
+// =====================================
+// DOWNLOAD CSV
+// =====================================
+
 function downloadCSV() {
-    if (savedSessions.length === 0) {
-        alert("Belum ada data yang disimpan.");
+
+    if(savedData.length === 0) {
+        alert("Belum ada data yang disimpan!");
         return;
     }
 
-    let csv = "ID,Waktu_ms,PPG_IR,HR_BPM\n";
+    let csv =
+    "Nama,Tanggal dan Waktu,Heart Rate (BPM),Suhu Tubuh (C)\n";
 
-    savedSessions.forEach(session => {
-        session.samples.forEach(s => {
-            csv += `${session.nama},${s.time},${s.ir},${s.bpm}\n`;
-        });
+    savedData.forEach(data => {
+
+        const nama = '"' + data.nama.replace(/"/g, '""') + '"';
+        const date = '"' + data.date + '"';
+
+        csv +=
+        `${nama},${date},${data.hr},${data.temp}\n`;
+
     });
 
-    const blob = new Blob([csv], {
-        type: "text/csv;charset=utf-8;"
-    });
+    const blob = new Blob(
+        ["\uFEFF" + csv],
+        { type: "text/csv;charset=utf-8;" }
+    );
 
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "data_PPG.csv";
+    link.download = "Data_Monitoring_PPG.csv";
+
     link.click();
 
     URL.revokeObjectURL(url);
 }
+
 </script>
 
 </body>
